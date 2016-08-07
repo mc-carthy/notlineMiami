@@ -5,30 +5,70 @@ public class PlayerAnimator : MonoBehaviour {
 
 	public SpriteRenderer torsoRen, legsRen;
 
-	private Sprite[] walking, attacking, legs;
+	private Sprite[] walkingSpr, attackingSpr, legsSpr;
 	private int torsoCount = 0, legCount = 0;
 	private PlayerMovement pm;
 	private float torsoTimer = 0.05f, legTimer = 0.05f;
 	private SpriteContainer sc;
+	private bool attacking;
 
 	private void Start () {
 		pm = this.GetComponent<PlayerMovement> ();
 		sc = GameObject.FindGameObjectWithTag ("GameController").GetComponent<SpriteContainer> ();
-		walking = sc.GetPlayerUnarmedWalk ();
-		legs = sc.GetPlayerLegs ();
+		walkingSpr = sc.GetPlayerUnarmedWalk ();
+		attackingSpr = sc.GetPlayerPunch ();
+		legsSpr = sc.GetPlayerLegs ();
 	}
 
 	private void Update () {
-		AnimateTorso ();
+		if (attacking) {
+			AnimateAttack ();
+		} else {
+			AnimateTorso ();
+		}
 		AnimateLegs ();
+	}
+
+	public void Attack () {
+		attacking = true;
+	}
+
+	public void ResetCounter () {
+		torsoCount = 0;
+	}
+
+	public bool GetAttack () {
+		return attacking;
+	}
+
+	public void SetNewTorso(Sprite[] walk, Sprite[] attack) {
+		torsoCount = 0;
+		walkingSpr = walk;
+		attackingSpr = attack;
+	}
+
+	private void AnimateAttack () {
+		torsoRen.sprite = attackingSpr [torsoCount];
+
+		torsoTimer -= Time.deltaTime;
+		if (torsoTimer <= 0) {
+			if (torsoCount < attackingSpr.Length - 1) {
+				torsoCount++;
+			} else {
+				attacking = false;
+				torsoCount = 0;
+				torsoRen.sprite = attackingSpr [0];
+			}
+			torsoTimer = 0.1f;
+		}
 	}
 
 	private void AnimateTorso () {
 		if (pm.moving) {
-			torsoRen.sprite = walking [torsoCount];
+			torsoRen.sprite = walkingSpr [torsoCount];
 			torsoTimer -= Time.deltaTime;
 			if (torsoTimer <= 0) {
-				if (torsoCount < walking.Length - 1) {
+				if (torsoCount < walkingSpr.Length - 1) {
 					torsoCount++;
 				} else {
 					torsoCount = 0;
@@ -40,10 +80,10 @@ public class PlayerAnimator : MonoBehaviour {
 
 	private void AnimateLegs () {
 		if (pm.moving) {
-			legsRen.sprite = legs [legCount];
+			legsRen.sprite = legsSpr [legCount];
 			legTimer -= Time.deltaTime;
 			if (legTimer <= 0) {
-				if (legCount < legs.Length - 1) {
+				if (legCount < legsSpr.Length - 1) {
 					legCount++;
 				} else {
 					legCount = 0;
