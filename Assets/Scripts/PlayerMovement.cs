@@ -7,7 +7,14 @@ public class PlayerMovement : MonoBehaviour {
 	public float moveSpeed = 5.0f;
 
 	private void Update() {
-		Movement ();
+		if (moving) {
+			Movement ();
+		}
+		MovementCheck ();
+	}
+
+	public void SetMoving (bool value) {
+		moving = value;
 	}
 
 	private void Movement () {
@@ -27,9 +34,13 @@ public class PlayerMovement : MonoBehaviour {
 			transform.Translate (Vector3.right * moveSpeed * Time.deltaTime, Space.World);
 			moving = true;
 		}
+	}
 
+	private void MovementCheck () {
 		if ((!Input.GetKey (KeyCode.W)) && (!Input.GetKey (KeyCode.S)) && (!Input.GetKey (KeyCode.A)) && (!Input.GetKey (KeyCode.D))) {
 			moving = false;
+		} else {
+			moving = true;
 		}
 	}
 }
